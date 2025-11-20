@@ -1,77 +1,202 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/student.dart';
 
 class StudentService {
-  // Şimdilik local liste, ileride Firebase'den çekilecek
-  static List<Student> _students = _generateSampleStudents();
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final String _collectionName = 'students';
 
-  static List<Student> _generateSampleStudents() {
-    final List<Student> students = [];
-    final List<String> firstNames = [
-      'Ahmet', 'Mehmet', 'Ali', 'Mustafa', 'Hasan', 'Hüseyin', 'İbrahim', 'Osman',
-      'Yusuf', 'Emre', 'Burak', 'Can', 'Deniz', 'Ege', 'Kaan', 'Arda', 'Berk',
-      'Cem', 'Doruk', 'Efe', 'Furkan', 'Gökhan', 'Hakan', 'İlker', 'Kemal',
-      'Ayşe', 'Fatma', 'Zeynep', 'Elif', 'Merve', 'Selin', 'Dilara', 'Büşra',
-      'Ceren', 'Derya', 'Esra', 'Gizem', 'Hande', 'İrem', 'Kübra', 'Leyla',
-      'Melis', 'Nazlı', 'Özge', 'Pınar', 'Seda', 'Tuğba', 'Yasemin', 'Zehra',
-      'Ada', 'Aylin', 'Beren', 'Ceylin', 'Defne', 'Ece', 'Fulya', 'Gamze',
-      'Hazal', 'İpek', 'Jale', 'Kiraz', 'Lara', 'Mina', 'Nisa', 'Öykü',
-      'Pelin', 'Rana', 'Selin', 'Tuba', 'Umay', 'Vildan', 'Yaren', 'Zara'
-    ];
+  // Singleton instance
+  static final StudentService _instance = StudentService._internal();
+  factory StudentService() => _instance;
+  StudentService._internal();
 
-    final List<String> lastNames = [
-      'Yılmaz', 'Kaya', 'Demir', 'Şahin', 'Çelik', 'Yıldız', 'Yıldırım', 'Öztürk',
-      'Aydın', 'Özdemir', 'Arslan', 'Doğan', 'Kılıç', 'Aslan', 'Çetin', 'Kara',
-      'Koç', 'Kurt', 'Özkan', 'Şimşek', 'Polat', 'Öz', 'Yücel', 'Erdoğan',
-      'Ateş', 'Bulut', 'Güneş', 'Taş', 'Toprak', 'Su', 'Deniz', 'Göl',
-      'Dağ', 'Orman', 'Çiçek', 'Gül', 'Yıldız', 'Ay', 'Güneş', 'Yıldırım'
-    ];
+  // Mock data (geçici - Firebase olmadan çalışması için)
+  static final List<Student> _mockStudents = [
+    Student(
+      id: '1',
+      firstName: 'Ahmet',
+      lastName: 'Yılmaz',
+      studentNumber: '12345',
+      className: '5-A',
+    ),
+    Student(
+      id: '2',
+      firstName: 'Ayşe',
+      lastName: 'Demir',
+      studentNumber: '12346',
+      className: '5-B',
+    ),
+    Student(
+      id: '3',
+      firstName: 'Mehmet',
+      lastName: 'Kaya',
+      studentNumber: '12347',
+      className: '6-A',
+    ),
+  ];
 
-    final List<String> classes = ['1-A', '1-B', '2-A', '2-B', '3-A', '3-B', '4-A', '4-B'];
-
-    for (int i = 0; i < 75; i++) {
-      final firstName = firstNames[i % firstNames.length];
-      final lastName = lastNames[i % lastNames.length];
-      final className = classes[i % classes.length];
-      final studentNumber = '${1000 + i}';
-
-      students.add(Student(
-        id: 'student_$i',
-        firstName: firstName,
-        lastName: lastName,
-        studentNumber: studentNumber,
-        className: className,
-      ));
-    }
-
-    return students;
-  }
-
+  // ========== STATIC METODLAR (ESKİ SİSTEM İÇİN) ==========
+  
   static List<Student> getAllStudents() {
-    return List.from(_students);
+    return List.from(_mockStudents);
   }
 
   static int getStudentCount() {
-    return _students.length;
+    return _mockStudents.length;
   }
 
   static void addStudent(Student student) {
-    _students.add(student);
-    // İleride burada Firebase'e kayıt yapılacak
+    _mockStudents.add(student);
   }
 
-  static void deleteStudent(String id) {
-    _students.removeWhere((student) => student.id == id);
-    // İleride burada Firebase'den silme yapılacak
+  static void updateStudent(int index, Student student) {
+    if (index >= 0 && index < _mockStudents.length) {
+      _mockStudents[index] = student;
+    }
   }
 
-  // İleride Firebase'den veri çekmek için
-  static Future<void> loadFromFirebase() async {
-    // Firebase implementasyonu buraya gelecek
+  static void deleteStudent(int index) {
+    if (index >= 0 && index < _mockStudents.length) {
+      _mockStudents.removeAt(index);
+    }
   }
 
-  // İleride Firebase'e kaydetmek için
-  static Future<void> saveToFirebase(Student student) async {
-    // Firebase implementasyonu buraya gelecek
+  static Student? getStudentByIndex(int index) {
+    if (index >= 0 && index < _mockStudents.length) {
+      return _mockStudents[index];
+    }
+    return null;
+  }
+
+  // ========== INSTANCE METODLAR (YENİ FİREBASE SİSTEMİ İÇİN) ==========
+
+  // Test verisi ekle (sadece geliştirme için)
+  Future<void> addTestStudent() async {
+    try {
+      // Test öğrencisi var mı kontrol et
+      final querySnapshot = await _firestore
+          .collection(_collectionName)
+          .where('studentNo', isEqualTo: '12345')
+          .limit(1)
+          .get();
+
+      if (querySnapshot.docs.isEmpty) {
+        // Test öğrencisi yoksa ekle
+        await _firestore.collection(_collectionName).add({
+          'studentNo': '12345',
+          'password': '123456',
+          'firstName': 'Ahmet',
+          'lastName': 'Yılmaz',
+          'className': '5-A',
+          'email': null, // İlk giriş için email yok
+          'createdAt': FieldValue.serverTimestamp(),
+        });
+        print('✅ Test öğrencisi eklendi (No: 12345, Şifre: 123456)');
+      } else {
+        print('ℹ️ Test öğrencisi zaten mevcut');
+      }
+    } catch (e) {
+      print('❌ Test öğrencisi eklenirken hata: $e');
+    }
+  }
+
+  // Tüm öğrencileri getir (Stream)
+  Stream<List<Student>> getAllStudentsStream() {
+    return _firestore
+        .collection(_collectionName)
+        .orderBy('studentNo')
+        .snapshots()
+        .map((snapshot) => snapshot.docs
+            .map((doc) => Student.fromFirestore(doc.data(), doc.id))
+            .toList());
+  }
+
+  // Tüm öğrencileri getir (Future)
+  Future<List<Student>> getAllStudentsFuture() async {
+    try {
+      final snapshot = await _firestore
+          .collection(_collectionName)
+          .orderBy('studentNo')
+          .get();
+      
+      return snapshot.docs
+          .map((doc) => Student.fromFirestore(doc.data(), doc.id))
+          .toList();
+    } catch (e) {
+      print('Öğrenciler getirme hatası: $e');
+      return [];
+    }
+  }
+
+  // ID'ye göre öğrenci getir
+  Future<Student?> getStudentById(String id) async {
+    try {
+      final doc = await _firestore.collection(_collectionName).doc(id).get();
+      if (doc.exists) {
+        return Student.fromFirestore(doc.data()!, doc.id);
+      }
+      return null;
+    } catch (e) {
+      print('Öğrenci getirme hatası: $e');
+      return null;
+    }
+  }
+
+  // Öğrenci ekle (Firestore)
+  Future<String?> addStudentToFirestore(Student student) async {
+    try {
+      final docRef = await _firestore.collection(_collectionName).add({
+        'studentNo': student.studentNumber,
+        'firstName': student.firstName,
+        'lastName': student.lastName,
+        'className': student.className,
+        'password': '123456', // Varsayılan şifre
+        'email': null,
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+      return docRef.id;
+    } catch (e) {
+      print('Öğrenci ekleme hatası: $e');
+      return null;
+    }
+  }
+
+  // Öğrenci güncelle
+  Future<bool> updateStudentInFirestore(String id, Student student) async {
+    try {
+      await _firestore.collection(_collectionName).doc(id).update({
+        'studentNo': student.studentNumber,
+        'firstName': student.firstName,
+        'lastName': student.lastName,
+        'className': student.className,
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+      return true;
+    } catch (e) {
+      print('Öğrenci güncelleme hatası: $e');
+      return false;
+    }
+  }
+
+  // Öğrenci sil
+  Future<bool> deleteStudentFromFirestore(String id) async {
+    try {
+      await _firestore.collection(_collectionName).doc(id).delete();
+      return true;
+    } catch (e) {
+      print('Öğrenci silme hatası: $e');
+      return false;
+    }
+  }
+
+  // Öğrenci sayısını getir (Firestore)
+  Future<int> getStudentCountFromFirestore() async {
+    try {
+      final snapshot = await _firestore.collection(_collectionName).get();
+      return snapshot.docs.length;
+    } catch (e) {
+      print('Öğrenci sayısı getirme hatası: $e');
+      return 0;
+    }
   }
 }
-

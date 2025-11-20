@@ -60,7 +60,7 @@ class Service {
     int? capacity,
     ServiceStatus? status,
     List<String>? assignedStudentIds,
-    String? notes,
+    String? Function()? notes,
   }) {
     return Service(
       id: id ?? this.id,
@@ -70,7 +70,7 @@ class Service {
       capacity: capacity ?? this.capacity,
       status: status ?? this.status,
       assignedStudentIds: assignedStudentIds ?? this.assignedStudentIds,
-      notes: notes ?? this.notes,
+      notes: notes != null ? notes() : this.notes,
     );
   }
 }

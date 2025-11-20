@@ -119,7 +119,7 @@ class DriverService {
       // Yeni servise şoförü ata
       final service = ServiceService.getServiceById(serviceId);
       if (service != null) {
-        final updatedDriver = driver.copyWith(assignedServiceId: serviceId);
+        final updatedDriver = driver.copyWith(assignedServiceId: () => serviceId);
         updateDriver(updatedDriver);
         
         // Servis bilgisini güncelle (eğer servis modelinde driverId varsa)
@@ -131,7 +131,7 @@ class DriverService {
   static void removeDriverFromService(String serviceId) {
     try {
       final driver = _drivers.firstWhere((d) => d.assignedServiceId == serviceId);
-      final updatedDriver = driver.copyWith(assignedServiceId: null);
+      final updatedDriver = driver.copyWith(assignedServiceId: () => null);
       updateDriver(updatedDriver);
     } catch (e) {
       // Şoför bulunamadı, işlem yapma
@@ -141,7 +141,7 @@ class DriverService {
   static void removeServiceFromDriver(String driverId) {
     final driver = getDriverById(driverId);
     if (driver != null) {
-      final updatedDriver = driver.copyWith(assignedServiceId: null);
+      final updatedDriver = driver.copyWith(assignedServiceId: () => null);
       updateDriver(updatedDriver);
     }
   }

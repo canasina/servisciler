@@ -7,7 +7,14 @@ import 'service_list_screen.dart';
 import 'driver_list_screen.dart';
 
 class SchoolHomeScreen extends StatefulWidget {
-  const SchoolHomeScreen({super.key});
+  final String schoolId;
+  final String schoolName;
+
+  const SchoolHomeScreen({
+    super.key,
+    required this.schoolId,
+    required this.schoolName,
+  });
 
   @override
   State<SchoolHomeScreen> createState() => _SchoolHomeScreenState();
@@ -90,7 +97,7 @@ class _SchoolHomeScreenState extends State<SchoolHomeScreen> {
               ),
               const SizedBox(height: 4),
               Text(
-                'Okul Paneli',
+                widget.schoolName,
                 style: GoogleFonts.poppins(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,

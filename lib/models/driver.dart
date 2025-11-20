@@ -60,22 +60,22 @@ class Driver {
     String? firstName,
     String? lastName,
     String? phoneNumber,
-    String? email,
+    String? Function()? email,
     String? licenseNumber,
     DriverStatus? status,
-    String? assignedServiceId,
-    String? notes,
+    String? Function()? assignedServiceId,
+    String? Function()? notes,
   }) {
     return Driver(
       id: id ?? this.id,
       firstName: firstName ?? this.firstName,
       lastName: lastName ?? this.lastName,
       phoneNumber: phoneNumber ?? this.phoneNumber,
-      email: email ?? this.email,
+      email: email != null ? email() : this.email,
       licenseNumber: licenseNumber ?? this.licenseNumber,
       status: status ?? this.status,
-      assignedServiceId: assignedServiceId ?? this.assignedServiceId,
-      notes: notes ?? this.notes,
+      assignedServiceId: assignedServiceId != null ? assignedServiceId() : this.assignedServiceId,
+      notes: notes != null ? notes() : this.notes,
     );
   }
 }

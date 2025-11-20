@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'school_home_screen.dart';
 
 class SchoolLoginScreen extends StatefulWidget {
@@ -11,9 +11,14 @@ class SchoolLoginScreen extends StatefulWidget {
 }
 
 class _SchoolLoginScreenState extends State<SchoolLoginScreen> {
+  final _formKey = GlobalKey<FormState>();
+  final _firestore = FirebaseFirestore.instance;
+  
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  
   bool _obscurePassword = true;
+  bool _isLoading = false;
 
   @override
   void dispose() {
@@ -22,211 +27,220 @@ class _SchoolLoginScreenState extends State<SchoolLoginScreen> {
     super.dispose();
   }
 
-  void _login() {
-    if (_usernameController.text.isNotEmpty && _passwordController.text.isNotEmpty) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const SchoolHomeScreen(),
-        ),
-      );
+  // Giriş yap
+  Future<void> _login() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    setState(() => _isLoading = true);
+
+    try {
+      final username = _usernameController.text.trim();
+      final password = _passwordController.text;
+
+      // Firestore'dan okul bilgisini kontrol et
+      final querySnapshot = await _firestore
+          .collection('schools')
+          .where('username', isEqualTo: username)
+          .where('password', isEqualTo: password)
+          .limit(1)
+          .get();
+
+      if (querySnapshot.docs.isEmpty) {
+        // Okul bulunamadı veya şifre yanlış
+        if (mounted) {
+          _showErrorDialog('Giriş Hatası', 
+            'Kullanıcı adı veya şifre hatalı. Lütfen tekrar deneyin.');
+        }
+        return;
+      }
+
+      // Okul bulundu
+      final schoolDoc = querySnapshot.docs.first;
+      final schoolData = schoolDoc.data();
+      final schoolId = schoolDoc.id;
+      final schoolName = schoolData['schoolName'] as String?;
+
+      if (mounted) {
+        // Ana sayfaya git
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => SchoolHomeScreen(
+              schoolId: schoolId,
+              schoolName: schoolName ?? 'Okul',
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        _showErrorDialog('Hata', 'Bir hata oluştu: $e');
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
     }
+  }
+
+  void _showErrorDialog(String title, String message) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(title, style: GoogleFonts.poppins(fontWeight: FontWeight.w600)),
+        content: Text(message, style: GoogleFonts.poppins()),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('Tamam', style: GoogleFonts.poppins(color: const Color(0xFF0A66C2))),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Color(0xFF263238),
-              Color(0xFF37474F),
-            ],
-          ),
-        ),
-        child: SafeArea(
-          child: Column(
-            children: [
-              // Geri dön butonu
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Align(
-                  alignment: Alignment.topLeft,
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        child: Column(
+          children: [
+            // Geri dön butonu
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Align(
+                alignment: Alignment.topLeft,
                   child: IconButton(
-                    icon: const Icon(Icons.arrow_back, color: Colors.white),
+                    icon: const Icon(Icons.arrow_back, color: Color(0xFF0A66C2)),
                     onPressed: () => Navigator.pop(context),
                   ),
-                ),
               ),
-              
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.symmetric(horizontal: 32.0),
+            ),
+            
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 32.0),
+                child: Form(
+                  key: _formKey,
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const SizedBox(height: 40),
+                      const SizedBox(height: 20),
                       
                       // İkon
                       Container(
                         width: 100,
                         height: 100,
                         decoration: BoxDecoration(
-                          color: const Color(0xFF2196F3),
+                          color: const Color(0xFF0A66C2).withOpacity(0.1),
                           shape: BoxShape.circle,
-                          boxShadow: [
-                            BoxShadow(
-                              color: const Color(0xFF2196F3).withOpacity(0.4),
-                              blurRadius: 30,
-                              spreadRadius: 5,
-                            ),
-                          ],
                         ),
-                        child: const FaIcon(
-                          FontAwesomeIcons.graduationCap,
-                          color: Colors.white,
+                        child: const Icon(
+                          Icons.school,
+                          color: Color(0xFF0A66C2),
                           size: 50,
                         ),
                       ),
-                      const SizedBox(height: 40),
+                      const SizedBox(height: 32),
                       
                       // Başlık
                       Text(
                         'Okul Girişi',
                         style: GoogleFonts.poppins(
                           fontSize: 32,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                          letterSpacing: 0.5,
+                          fontWeight: FontWeight.w700,
+                          color: const Color(0xFF000000),
+                          letterSpacing: 0.3,
                         ),
                       ),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 8),
                       
                       Text(
                         'Kullanıcı adı ve şifrenizle giriş yapın',
                         style: GoogleFonts.poppins(
                           fontSize: 15,
-                          color: Colors.white.withOpacity(0.8),
+                          color: const Color(0xFF666666),
                           fontWeight: FontWeight.w400,
+                          letterSpacing: 0.2,
                         ),
                         textAlign: TextAlign.center,
                       ),
-                      const SizedBox(height: 50),
+                      const SizedBox(height: 40),
                       
-                      // Kullanıcı adı girişi
-                      Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(
-                            color: Colors.white.withOpacity(0.2),
-                            width: 1,
-                          ),
-                        ),
-                        child: TextField(
-                          controller: _usernameController,
-                          style: GoogleFonts.poppins(
-                            fontSize: 16,
-                            color: Colors.white,
-                            fontWeight: FontWeight.w500,
-                          ),
-                          decoration: InputDecoration(
-                            hintText: 'Kullanıcı adı',
-                            hintStyle: GoogleFonts.poppins(
-                              fontSize: 16,
-                              color: Colors.white.withOpacity(0.5),
-                            ),
-                            prefixIcon: const Icon(
-                              Icons.person,
-                              color: Color(0xFF2196F3),
-                            ),
-                            border: InputBorder.none,
-                            contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 20,
-                              vertical: 20,
-                            ),
-                          ),
-                        ),
+                      // Kullanıcı adı
+                      _buildTextField(
+                        controller: _usernameController,
+                        hintText: 'Kullanıcı Adı',
+                        icon: Icons.person_outline,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Kullanıcı adı gerekli';
+                          }
+                          return null;
+                        },
                       ),
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 16),
                       
-                      // Şifre girişi
-                      Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(
-                            color: Colors.white.withOpacity(0.2),
-                            width: 1,
+                      // Şifre
+                      _buildTextField(
+                        controller: _passwordController,
+                        hintText: 'Şifre',
+                        icon: Icons.lock_outline,
+                        obscureText: _obscurePassword,
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _obscurePassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                            color: const Color(0xFF666666),
                           ),
+                          onPressed: () {
+                            setState(() {
+                              _obscurePassword = !_obscurePassword;
+                            });
+                          },
                         ),
-                        child: TextField(
-                          controller: _passwordController,
-                          obscureText: _obscurePassword,
-                          style: GoogleFonts.poppins(
-                            fontSize: 16,
-                            color: Colors.white,
-                            fontWeight: FontWeight.w500,
-                          ),
-                          decoration: InputDecoration(
-                            hintText: 'Şifre',
-                            hintStyle: GoogleFonts.poppins(
-                              fontSize: 16,
-                              color: Colors.white.withOpacity(0.5),
-                            ),
-                            prefixIcon: const Icon(
-                              Icons.lock,
-                              color: Color(0xFF2196F3),
-                            ),
-                            suffixIcon: IconButton(
-                              icon: Icon(
-                                _obscurePassword ? Icons.visibility : Icons.visibility_off,
-                                color: Colors.white.withOpacity(0.7),
-                              ),
-                              onPressed: () {
-                                setState(() {
-                                  _obscurePassword = !_obscurePassword;
-                                });
-                              },
-                            ),
-                            border: InputBorder.none,
-                            contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 20,
-                              vertical: 20,
-                            ),
-                          ),
-                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Şifre gerekli';
+                          }
+                          return null;
+                        },
                       ),
-                      const SizedBox(height: 30),
+                      
+                      const SizedBox(height: 32),
                       
                       // Giriş butonu
                       SizedBox(
                         width: double.infinity,
-                        height: 60,
+                        height: 52,
                         child: ElevatedButton(
-                          onPressed: _login,
+                          onPressed: _isLoading ? null : _login,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF2196F3),
+                            backgroundColor: const Color(0xFF0A66C2),
                             foregroundColor: Colors.white,
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
+                              borderRadius: BorderRadius.circular(28),
                             ),
-                            elevation: 8,
-                            shadowColor: const Color(0xFF2196F3).withOpacity(0.4),
+                            elevation: 0,
+                            shadowColor: const Color(0xFF0A66C2).withOpacity(0.3),
                           ),
-                          child: Text(
-                            'Giriş Yap',
-                            style: GoogleFonts.poppins(
-                              fontSize: 17,
-                              fontWeight: FontWeight.w600,
-                              letterSpacing: 0.5,
-                            ),
-                          ),
+                          child: _isLoading
+                            ? const SizedBox(
+                                width: 24,
+                                height: 24,
+                                child: CircularProgressIndicator(
+                                  color: Colors.white,
+                                  strokeWidth: 2,
+                                ),
+                              )
+                            : Text(
+                                'Giriş Yap',
+                                style: GoogleFonts.poppins(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  letterSpacing: 0.3,
+                                ),
+                              ),
                         ),
                       ),
                       
@@ -235,7 +249,64 @@ class _SchoolLoginScreenState extends State<SchoolLoginScreen> {
                   ),
                 ),
               ),
-            ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String hintText,
+    required IconData icon,
+    bool obscureText = false,
+    Widget? suffixIcon,
+    TextInputType? keyboardType,
+    String? Function(String?)? validator,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: const Color(0xFFE0E0E0),
+          width: 1.5,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: TextFormField(
+        controller: controller,
+        obscureText: obscureText,
+        keyboardType: keyboardType,
+        validator: validator,
+        style: GoogleFonts.poppins(
+          fontSize: 16,
+          color: const Color(0xFF000000),
+          fontWeight: FontWeight.w500,
+        ),
+        decoration: InputDecoration(
+          hintText: hintText,
+          hintStyle: GoogleFonts.poppins(
+            fontSize: 16,
+            color: const Color(0xFF999999),
+            fontWeight: FontWeight.w400,
+          ),
+          prefixIcon: Icon(
+            icon,
+            color: const Color(0xFF0A66C2),
+          ),
+          suffixIcon: suffixIcon,
+          border: InputBorder.none,
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 20,
+            vertical: 18,
           ),
         ),
       ),
