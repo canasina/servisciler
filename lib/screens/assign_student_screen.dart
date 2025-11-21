@@ -18,7 +18,7 @@ class AssignStudentScreen extends StatefulWidget {
 class _AssignStudentScreenState extends State<AssignStudentScreen> {
   List<Student> _allStudents = [];
   List<Student> _availableStudents = [];
-  List<String> _selectedStudentIds = [];
+  final List<String> _selectedStudentIds = [];
   final TextEditingController _searchController = TextEditingController();
   Service? _service;
 

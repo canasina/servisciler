@@ -156,9 +156,9 @@ class _AssignServiceToDriverScreenState extends State<AssignServiceToDriverScree
                           ),
                         ),
                         child: DropdownButtonFormField<String>(
-                          value: _selectedServiceId,
-                          decoration: InputDecoration(
-                            prefixIcon: const FaIcon(
+                          initialValue: _selectedServiceId,
+                          decoration: const InputDecoration(
+                            prefixIcon: FaIcon(
                               FontAwesomeIcons.bus,
                               color: Color(0xFFFF9800),
                             ),
@@ -228,7 +228,7 @@ class _AssignServiceToDriverScreenState extends State<AssignServiceToDriverScree
                                   ],
                                 ),
                               );
-                            }).toList(),
+                            }),
                           ],
                           onChanged: (String? value) {
                             setState(() {
@@ -309,7 +309,7 @@ class _AssignServiceToDriverScreenState extends State<AssignServiceToDriverScree
                           );
                           
                           return _buildServiceCard(service, isSelected, hasOtherDriver);
-                        }).toList(),
+                        }),
                       ],
                     ],
                   ),

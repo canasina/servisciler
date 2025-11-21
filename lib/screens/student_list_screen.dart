@@ -16,6 +16,7 @@ class _StudentListScreenState extends State<StudentListScreen> {
   List<Student> _students = [];
   List<Student> _filteredStudents = [];
   final TextEditingController _searchController = TextEditingController();
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -30,11 +31,30 @@ class _StudentListScreenState extends State<StudentListScreen> {
     super.dispose();
   }
 
-  void _loadStudents() {
+  Future<void> _loadStudents() async {
     setState(() {
-      _students = StudentService.getAllStudents();
-      _filteredStudents = _students;
+      _isLoading = true;
     });
+    
+    try {
+      final studentService = StudentService();
+      final students = await studentService.getAllStudentsFuture();
+      
+      if (mounted) {
+        setState(() {
+          _students = students;
+          _filteredStudents = students;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      print('Öğrenciler yüklenirken hata: $e');
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
   }
 
   void _filterStudents() {
@@ -78,34 +98,21 @@ class _StudentListScreenState extends State<StudentListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Color(0xFF263238),
-              Color(0xFF37474F),
-            ],
-          ),
-        ),
-        child: SafeArea(
-          child: Column(
-            children: [
-              // AppBar
-              _buildAppBar(),
-              
-              // Arama Çubuğu
-              _buildSearchBar(),
-              
-              // Öğrenci Listesi
-              Expanded(
-                child: _buildStudentList(),
-              ),
-            ],
-          ),
+      backgroundColor: const Color(0xFFF8F9FA),
+      body: SafeArea(
+        child: Column(
+          children: [
+            // AppBar
+            _buildAppBar(),
+            
+            // Arama Çubuğu
+            _buildSearchBar(),
+            
+            // Öğrenci Listesi
+            Expanded(
+              child: _buildStudentList(),
+            ),
+          ],
         ),
       ),
     );
@@ -114,13 +121,23 @@ class _StudentListScreenState extends State<StudentListScreen> {
   Widget _buildAppBar() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Row(
             children: [
               IconButton(
-                icon: const Icon(Icons.arrow_back, color: Colors.white),
+                icon: const Icon(Icons.arrow_back, color: Color(0xFF000000)),
                 onPressed: () {
                   Navigator.pop(context, true); // Anasayfayı güncellemek için true döndür
                 },
@@ -130,8 +147,9 @@ class _StudentListScreenState extends State<StudentListScreen> {
                 'Öğrenci Listesi',
                 style: GoogleFonts.poppins(
                   fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
+                  fontWeight: FontWeight.w700,
+                  color: const Color(0xFF000000),
+                  letterSpacing: 0.3,
                 ),
               ),
             ],
@@ -140,7 +158,7 @@ class _StudentListScreenState extends State<StudentListScreen> {
             icon: Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: const Color(0xFF2196F3),
+                color: const Color(0xFF0A66C2),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: const Icon(Icons.add, color: Colors.white, size: 24),
@@ -157,26 +175,34 @@ class _StudentListScreenState extends State<StudentListScreen> {
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
       padding: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.1),
+        color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: Colors.white.withOpacity(0.1),
+          color: const Color(0xFFE0E0E0),
           width: 1,
         ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            spreadRadius: 1,
+            offset: const Offset(0, 3),
+          ),
+        ],
       ),
       child: TextField(
         controller: _searchController,
-        style: GoogleFonts.poppins(color: Colors.white),
+        style: GoogleFonts.poppins(color: const Color(0xFF000000)),
         decoration: InputDecoration(
           hintText: 'Öğrenci ara...',
           hintStyle: GoogleFonts.poppins(
-            color: Colors.white.withOpacity(0.5),
+            color: const Color(0xFF999999),
           ),
           border: InputBorder.none,
-          icon: const Icon(Icons.search, color: Colors.white70),
+          icon: const Icon(Icons.search, color: Color(0xFF666666)),
           suffixIcon: _searchController.text.isNotEmpty
               ? IconButton(
-                  icon: const Icon(Icons.clear, color: Colors.white70),
+                  icon: const Icon(Icons.clear, color: Color(0xFF666666)),
                   onPressed: () {
                     _searchController.clear();
                   },
@@ -188,6 +214,14 @@ class _StudentListScreenState extends State<StudentListScreen> {
   }
 
   Widget _buildStudentList() {
+    if (_isLoading) {
+      return const Center(
+        child: CircularProgressIndicator(
+          color: Color(0xFF0A66C2),
+        ),
+      );
+    }
+
     if (_filteredStudents.isEmpty) {
       return Center(
         child: Column(
@@ -195,7 +229,7 @@ class _StudentListScreenState extends State<StudentListScreen> {
           children: [
             const FaIcon(
               FontAwesomeIcons.userGroup,
-              color: Colors.white54,
+              color: Color(0xFF999999),
               size: 64,
             ),
             const SizedBox(height: 16),
@@ -205,7 +239,7 @@ class _StudentListScreenState extends State<StudentListScreen> {
                   : 'Arama sonucu bulunamadı',
               style: GoogleFonts.poppins(
                 fontSize: 18,
-                color: Colors.white54,
+                color: const Color(0xFF666666),
               ),
             ),
           ],
@@ -213,13 +247,17 @@ class _StudentListScreenState extends State<StudentListScreen> {
       );
     }
 
-    return ListView.builder(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-      itemCount: _filteredStudents.length,
-      itemBuilder: (context, index) {
-        final student = _filteredStudents[index];
-        return _buildStudentCard(student);
-      },
+    return RefreshIndicator(
+      onRefresh: _loadStudents,
+      color: const Color(0xFF0A66C2),
+      child: ListView.builder(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+        itemCount: _filteredStudents.length,
+        itemBuilder: (context, index) {
+          final student = _filteredStudents[index];
+          return _buildStudentCard(student);
+        },
+      ),
     );
   }
 
@@ -228,12 +266,20 @@ class _StudentListScreenState extends State<StudentListScreen> {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(16),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: Colors.white.withOpacity(0.1),
+          color: const Color(0xFFE0E0E0),
           width: 1,
         ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            spreadRadius: 1,
+            offset: const Offset(0, 3),
+          ),
+        ],
       ),
       child: Row(
         children: [
@@ -242,7 +288,7 @@ class _StudentListScreenState extends State<StudentListScreen> {
             width: 50,
             height: 50,
             decoration: BoxDecoration(
-              color: const Color(0xFF2196F3).withOpacity(0.2),
+              color: const Color(0xFF0A66C2).withOpacity(0.1),
               shape: BoxShape.circle,
             ),
             child: Center(
@@ -251,7 +297,7 @@ class _StudentListScreenState extends State<StudentListScreen> {
                 style: GoogleFonts.poppins(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
-                  color: const Color(0xFF2196F3),
+                  color: const Color(0xFF0A66C2),
                 ),
               ),
             ),
@@ -268,7 +314,7 @@ class _StudentListScreenState extends State<StudentListScreen> {
                   style: GoogleFonts.poppins(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
-                    color: Colors.white,
+                    color: const Color(0xFF000000),
                   ),
                 ),
                 const SizedBox(height: 4),

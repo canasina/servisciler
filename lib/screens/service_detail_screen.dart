@@ -74,21 +74,21 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: const Color(0xFF37474F),
+        backgroundColor: Colors.white,
         title: Text(
           'Servisi Sil',
-          style: GoogleFonts.poppins(color: Colors.white),
+          style: GoogleFonts.poppins(color: const Color(0xFF000000)),
         ),
         content: Text(
           'Bu servisi silmek istediğinizden emin misiniz?',
-          style: GoogleFonts.poppins(color: Colors.white70),
+          style: GoogleFonts.poppins(color: const Color(0xFF666666)),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
             child: Text(
               'İptal',
-              style: GoogleFonts.poppins(color: Colors.white70),
+              style: GoogleFonts.poppins(color: const Color(0xFF666666)),
             ),
           ),
           TextButton(
@@ -159,19 +159,10 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
   Widget build(BuildContext context) {
     if (_service == null) {
       return Scaffold(
-        body: Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                Color(0xFF263238),
-                Color(0xFF37474F),
-              ],
-            ),
-          ),
-          child: const Center(
-            child: CircularProgressIndicator(),
+        backgroundColor: const Color(0xFFF8F9FA),
+        body: const Center(
+          child: CircularProgressIndicator(
+            color: Color(0xFF0A66C2),
           ),
         ),
       );
@@ -180,32 +171,20 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
     final statusColor = Color(_service!.status.colorValue);
 
     return Scaffold(
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Color(0xFF263238),
-              Color(0xFF37474F),
-            ],
-          ),
-        ),
-        child: SafeArea(
-          child: Column(
-            children: [
-              // AppBar
-              _buildAppBar(),
-              
-              // İçerik
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
+      backgroundColor: const Color(0xFFF8F9FA),
+      body: SafeArea(
+        child: Column(
+          children: [
+            // AppBar
+            _buildAppBar(),
+            
+            // İçerik
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
                       // Servis Bilgileri Kartı
                       _buildServiceInfoCard(statusColor),
                       
@@ -219,8 +198,9 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
                             'Atanmış Öğrenciler',
                             style: GoogleFonts.poppins(
                               fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
+                              fontWeight: FontWeight.w700,
+                              color: const Color(0xFF000000),
+                              letterSpacing: 0.3,
                             ),
                           ),
                           if (!_service!.isFull)
@@ -253,14 +233,26 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
                         Container(
                           padding: const EdgeInsets.all(32),
                           decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.05),
+                            color: Colors.white,
                             borderRadius: BorderRadius.circular(16),
+                            border: Border.all(
+                              color: const Color(0xFFE0E0E0),
+                              width: 1,
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.05),
+                                blurRadius: 10,
+                                spreadRadius: 1,
+                                offset: const Offset(0, 3),
+                              ),
+                            ],
                           ),
                           child: Column(
                             children: [
                               const FaIcon(
                                 FontAwesomeIcons.userGroup,
-                                color: Colors.white54,
+                                color: Color(0xFF999999),
                                 size: 48,
                               ),
                               const SizedBox(height: 16),
@@ -268,7 +260,7 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
                                 'Henüz öğrenci atanmamış',
                                 style: GoogleFonts.poppins(
                                   fontSize: 16,
-                                  color: Colors.white54,
+                                  color: const Color(0xFF666666),
                                 ),
                               ),
                               if (!_service!.isFull) ...[
@@ -289,7 +281,7 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
                       else
                         ..._assignedStudents.map((student) {
                           return _buildStudentCard(student);
-                        }).toList(),
+                        }),
                     ],
                   ),
                 ),
@@ -304,13 +296,23 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
   Widget _buildAppBar() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Row(
             children: [
               IconButton(
-                icon: const Icon(Icons.arrow_back, color: Colors.white),
+                icon: const Icon(Icons.arrow_back, color: Color(0xFF000000)),
                 onPressed: () => Navigator.pop(context, true),
               ),
               const SizedBox(width: 8),
@@ -318,8 +320,9 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
                 'Servis Detayı',
                 style: GoogleFonts.poppins(
                   fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
+                  fontWeight: FontWeight.w700,
+                  color: const Color(0xFF000000),
+                  letterSpacing: 0.3,
                 ),
               ),
             ],
@@ -327,7 +330,7 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
           Row(
             children: [
               IconButton(
-                icon: const Icon(Icons.edit, color: Colors.white),
+                icon: const Icon(Icons.edit, color: Color(0xFF0A66C2)),
                 onPressed: _editService,
               ),
               IconButton(
@@ -345,12 +348,20 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(20),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: Colors.white.withOpacity(0.1),
+          color: const Color(0xFFE0E0E0),
           width: 1,
         ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            spreadRadius: 1,
+            offset: const Offset(0, 3),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -381,15 +392,15 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
                         _service!.plateNumber,
                         style: GoogleFonts.poppins(
                           fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                          fontWeight: FontWeight.w700,
+                          color: const Color(0xFF000000),
                         ),
                       ),
                       Text(
                         _service!.routeName,
                         style: GoogleFonts.poppins(
                           fontSize: 14,
-                          color: Colors.white.withOpacity(0.7),
+                          color: const Color(0xFF666666),
                         ),
                       ),
                     ],
@@ -480,7 +491,7 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
               value: _service!.capacity > 0 
                   ? _service!.currentStudentCount / _service!.capacity 
                   : 0,
-              backgroundColor: Colors.white.withOpacity(0.1),
+              backgroundColor: const Color(0xFFE0E0E0),
               valueColor: AlwaysStoppedAnimation<Color>(
                 _service!.isFull ? const Color(0xFFF44336) : const Color(0xFF4CAF50),
               ),
@@ -491,7 +502,7 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
           // Notlar
           if (_service!.notes != null && _service!.notes!.isNotEmpty) ...[
             const SizedBox(height: 16),
-            const Divider(color: Colors.white24),
+            const Divider(color: Color(0xFFE0E0E0)),
             const SizedBox(height: 12),
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -507,7 +518,7 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
                     _service!.notes!,
                     style: GoogleFonts.poppins(
                       fontSize: 14,
-                      color: Colors.white.withOpacity(0.8),
+                      color: const Color(0xFF000000),
                     ),
                   ),
                 ),
@@ -533,7 +544,7 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
           '$label: ',
           style: GoogleFonts.poppins(
             fontSize: 14,
-            color: Colors.white.withOpacity(0.7),
+            color: const Color(0xFF666666),
           ),
         ),
         Text(
@@ -541,7 +552,7 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
           style: GoogleFonts.poppins(
             fontSize: 14,
             fontWeight: FontWeight.w600,
-            color: Colors.white,
+            color: const Color(0xFF000000),
           ),
         ),
       ],
@@ -553,12 +564,20 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.05),
-        borderRadius: BorderRadius.circular(16),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: Colors.white.withOpacity(0.1),
+          color: const Color(0xFFE0E0E0),
           width: 1,
         ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            spreadRadius: 1,
+            offset: const Offset(0, 3),
+          ),
+        ],
       ),
       child: Row(
         children: [
@@ -567,7 +586,7 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
             width: 50,
             height: 50,
             decoration: BoxDecoration(
-              color: const Color(0xFF2196F3).withOpacity(0.2),
+              color: const Color(0xFF0A66C2).withOpacity(0.1),
               shape: BoxShape.circle,
             ),
             child: Center(
@@ -575,8 +594,8 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
                 student.firstName[0].toUpperCase(),
                 style: GoogleFonts.poppins(
                   fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: const Color(0xFF2196F3),
+                  fontWeight: FontWeight.w700,
+                  color: const Color(0xFF0A66C2),
                 ),
               ),
             ),
@@ -593,7 +612,7 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
                   style: GoogleFonts.poppins(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
-                    color: Colors.white,
+                    color: const Color(0xFF000000),
                   ),
                 ),
                 const SizedBox(height: 4),

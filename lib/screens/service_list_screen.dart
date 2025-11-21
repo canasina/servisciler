@@ -86,37 +86,24 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Color(0xFF263238),
-              Color(0xFF37474F),
-            ],
-          ),
-        ),
-        child: SafeArea(
-          child: Column(
-            children: [
-              // AppBar
-              _buildAppBar(),
-              
-              // İstatistikler
-              _buildStatsCards(),
-              
-              // Arama ve Filtreler
-              _buildSearchAndFilters(),
-              
-              // Servis Listesi
-              Expanded(
-                child: _buildServiceList(),
-              ),
-            ],
-          ),
+      backgroundColor: const Color(0xFFF8F9FA),
+      body: SafeArea(
+        child: Column(
+          children: [
+            // AppBar
+            _buildAppBar(),
+            
+            // İstatistikler
+            _buildStatsCards(),
+            
+            // Arama ve Filtreler
+            _buildSearchAndFilters(),
+            
+            // Servis Listesi
+            Expanded(
+              child: _buildServiceList(),
+            ),
+          ],
         ),
       ),
     );
@@ -125,13 +112,23 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
   Widget _buildAppBar() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Row(
             children: [
               IconButton(
-                icon: const Icon(Icons.arrow_back, color: Colors.white),
+                icon: const Icon(Icons.arrow_back, color: Color(0xFF000000)),
                 onPressed: () => Navigator.pop(context),
               ),
               const SizedBox(width: 8),
@@ -139,8 +136,9 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
                 'Servis Yönetimi',
                 style: GoogleFonts.poppins(
                   fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
+                  fontWeight: FontWeight.w700,
+                  color: const Color(0xFF000000),
+                  letterSpacing: 0.3,
                 ),
               ),
             ],
@@ -149,7 +147,7 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
             icon: Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: const Color(0xFF4CAF50),
+                color: const Color(0xFF0A66C2),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: const Icon(Icons.add, color: Colors.white, size: 24),
@@ -228,12 +226,20 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(16),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: Colors.white.withOpacity(0.1),
+          color: const Color(0xFFE0E0E0),
           width: 1,
         ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            spreadRadius: 1,
+            offset: const Offset(0, 3),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -244,8 +250,8 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
             value,
             style: GoogleFonts.poppins(
               fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
+              fontWeight: FontWeight.w700,
+              color: const Color(0xFF000000),
             ),
           ),
           const SizedBox(height: 4),
@@ -253,7 +259,8 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
             title,
             style: GoogleFonts.poppins(
               fontSize: 11,
-              color: Colors.white.withOpacity(0.7),
+              color: const Color(0xFF666666),
+              fontWeight: FontWeight.w400,
             ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
@@ -272,26 +279,34 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.1),
+              color: Colors.white,
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color: Colors.white.withOpacity(0.1),
+                color: const Color(0xFFE0E0E0),
                 width: 1,
               ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 10,
+                  spreadRadius: 1,
+                  offset: const Offset(0, 3),
+                ),
+              ],
             ),
             child: TextField(
               controller: _searchController,
-              style: GoogleFonts.poppins(color: Colors.white),
+              style: GoogleFonts.poppins(color: const Color(0xFF000000)),
               decoration: InputDecoration(
                 hintText: 'Plaka, şoför veya rota ara...',
                 hintStyle: GoogleFonts.poppins(
-                  color: Colors.white.withOpacity(0.5),
+                  color: const Color(0xFF999999),
                 ),
                 border: InputBorder.none,
-                icon: const Icon(Icons.search, color: Colors.white70),
+                icon: const Icon(Icons.search, color: Color(0xFF666666)),
                 suffixIcon: _searchController.text.isNotEmpty
                     ? IconButton(
-                        icon: const Icon(Icons.clear, color: Colors.white70),
+                        icon: const Icon(Icons.clear, color: Color(0xFF666666)),
                         onPressed: () {
                           _searchController.clear();
                         },
@@ -331,13 +346,13 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
           color: isSelected 
-              ? const Color(0xFF2196F3) 
-              : Colors.white.withOpacity(0.1),
+              ? const Color(0xFF0A66C2) 
+              : Colors.white,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
             color: isSelected 
-                ? const Color(0xFF2196F3) 
-                : Colors.white.withOpacity(0.1),
+                ? const Color(0xFF0A66C2) 
+                : const Color(0xFFE0E0E0),
             width: 1,
           ),
         ),
@@ -356,7 +371,7 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
             Text(
               label,
               style: GoogleFonts.poppins(
-                color: isSelected ? Colors.white : Colors.white70,
+                color: isSelected ? Colors.white : const Color(0xFF000000),
                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
                 fontSize: 13,
               ),
@@ -375,7 +390,7 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
           children: [
             const FaIcon(
               FontAwesomeIcons.bus,
-              color: Colors.white54,
+              color: Color(0xFF999999),
               size: 64,
             ),
             const SizedBox(height: 16),
@@ -385,7 +400,7 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
                   : 'Arama sonucu bulunamadı',
               style: GoogleFonts.poppins(
                 fontSize: 18,
-                color: Colors.white54,
+                color: const Color(0xFF666666),
               ),
             ),
           ],
@@ -423,12 +438,20 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(16),
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: Colors.white.withOpacity(0.1),
+            color: const Color(0xFFE0E0E0),
             width: 1,
           ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 10,
+              spreadRadius: 1,
+              offset: const Offset(0, 3),
+            ),
+          ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -461,15 +484,15 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
                               service.plateNumber,
                               style: GoogleFonts.poppins(
                                 fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
+                                fontWeight: FontWeight.w700,
+                                color: const Color(0xFF000000),
                               ),
                             ),
                             Text(
                               service.routeName,
                               style: GoogleFonts.poppins(
                                 fontSize: 12,
-                                color: Colors.white.withOpacity(0.7),
+                                color: const Color(0xFF666666),
                               ),
                             ),
                           ],
@@ -511,7 +534,7 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
                   service.driverName,
                   style: GoogleFonts.poppins(
                     fontSize: 14,
-                    color: Colors.white,
+                    color: const Color(0xFF000000),
                   ),
                 ),
               ],
@@ -534,14 +557,14 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
                       style: GoogleFonts.poppins(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
-                        color: Colors.white,
+                        color: const Color(0xFF000000),
                       ),
                     ),
                     Text(
                       ' öğrenci',
                       style: GoogleFonts.poppins(
                         fontSize: 14,
-                        color: Colors.white.withOpacity(0.7),
+                        color: const Color(0xFF666666),
                       ),
                     ),
                   ],
@@ -571,7 +594,7 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
               borderRadius: BorderRadius.circular(4),
               child: LinearProgressIndicator(
                 value: service.capacity > 0 ? service.currentStudentCount / service.capacity : 0,
-                backgroundColor: Colors.white.withOpacity(0.1),
+                backgroundColor: const Color(0xFFE0E0E0),
                 valueColor: AlwaysStoppedAnimation<Color>(
                   service.isFull ? const Color(0xFFF44336) : const Color(0xFF4CAF50),
                 ),

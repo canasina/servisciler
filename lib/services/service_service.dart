@@ -2,7 +2,7 @@ import '../models/service.dart';
 
 class ServiceService {
   // Şimdilik local liste, ileride Firebase'den çekilecek
-  static List<Service> _services = _generateSampleServices();
+  static final List<Service> _services = _generateSampleServices();
 
   static List<Service> _generateSampleServices() {
     final List<Service> services = [];

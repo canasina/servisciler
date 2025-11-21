@@ -40,8 +40,8 @@ class _SchoolLoginScreenState extends State<SchoolLoginScreen> {
       // Firestore'dan okul bilgisini kontrol et
       final querySnapshot = await _firestore
           .collection('schools')
-          .where('username', isEqualTo: username)
-          .where('password', isEqualTo: password)
+          .where('schoolID', isEqualTo: username)
+          .where('schoolPass', isEqualTo: password)
           .limit(1)
           .get();
 

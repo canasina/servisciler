@@ -1,6 +1,5 @@
 plugins {
-    // 🔹 Google Services plugin (ROOT LEVEL) – BURADA VERSION VAR
-    id("com.google.gms.google-services") version "4.4.4" apply false
+    // Google Services plugin zaten settings.gradle.kts içinde tanımlı (FlutterFire Configuration)
 }
 
 allprojects {

@@ -143,22 +143,129 @@ class StudentService {
   }
 
   // Öğrenci ekle (Firestore)
-  Future<String?> addStudentToFirestore(Student student) async {
+  Future<String?> addStudentToFirestore(Student student, {String? password}) async {
     try {
-      final docRef = await _firestore.collection(_collectionName).add({
+      // Document ID oluştur: isimsoyisimnumara (küçük harf, boşluksuz, Türkçe karakterler düzeltilmiş)
+      final firstName = _normalizeTurkishChars(student.firstName.toLowerCase().trim());
+      final lastName = _normalizeTurkishChars(student.lastName.toLowerCase().trim());
+      final studentNo = student.studentNumber.trim();
+      final docId = '$firstName$lastName$studentNo';
+      
+      // Bu ID'ye sahip öğrenci var mı kontrol et
+      final existingDoc = await _firestore.collection(_collectionName).doc(docId).get();
+      if (existingDoc.exists) {
+        // Eğer aynı ID'ye sahip öğrenci varsa, numara ile çakışma olabilir
+        throw Exception('Bu öğrenci zaten kayıtlı! (${student.firstName} ${student.lastName} - $studentNo)');
+      }
+      
+      // Belirli ID ile kayıt yap
+      await _firestore.collection(_collectionName).doc(docId).set({
         'studentNo': student.studentNumber,
         'firstName': student.firstName,
         'lastName': student.lastName,
         'className': student.className,
-        'password': '123456', // Varsayılan şifre
+        'password': password ?? '123456', // Şifre parametresi veya varsayılan şifre
         'email': null,
         'createdAt': FieldValue.serverTimestamp(),
       });
-      return docRef.id;
+      
+      return docId;
     } catch (e) {
       print('Öğrenci ekleme hatası: $e');
       return null;
     }
+  }
+
+  // Veli ekle (Firestore - parents koleksiyonu)
+  Future<String?> addParentToFirestore({
+    required String parentName,
+    required String studentName,
+    required String studentNumber,
+    required String password,
+    String? email,
+  }) async {
+    try {
+      print('🔄 Veli kaydı oluşturuluyor...');
+      print('  Veli Adı: "$parentName"');
+      print('  Öğrenci: "$studentName"');
+      print('  Numara: "$studentNumber"');
+      
+      // Document ID oluştur: veliadisoyadiogrencinumarası
+      // Veli adındaki tüm boşlukları kaldır ve normalize et
+      final trimmedParentName = parentName.trim();
+      final normalizedParentName = _normalizeTurkishChars(trimmedParentName.toLowerCase());
+      final studentNo = studentNumber.trim();
+      final docId = '$normalizedParentName$studentNo';
+      
+      print('  Veli adı (trimmed): "$trimmedParentName"');
+      print('  Veli adı (normalized): "$normalizedParentName"');
+      print('  Öğrenci numarası: "$studentNo"');
+      print('  Oluşturulan Document ID: "$docId"');
+      
+      // Veli kaydı oluştur
+      final parentData = <String, dynamic>{
+        'parentName': trimmedParentName,
+        'studentName': studentName.trim(),
+        'schoolNumber': studentNo,
+        'password': password.trim(),
+      };
+      
+      // Email varsa ekle
+      if (email != null && email.trim().isNotEmpty) {
+        parentData['email'] = email.trim();
+        parentData['emailAddedAt'] = FieldValue.serverTimestamp();
+      }
+      
+      print('  Kaydedilecek veriler: $parentData');
+      print('  Firestore collection: parents');
+      print('  Firestore document ID: $docId');
+      
+      await _firestore.collection('parents').doc(docId).set(parentData);
+      
+      print('✅ Firestore set() işlemi tamamlandı');
+      print('✅ Veli kaydı başarıyla oluşturuldu: $docId');
+      
+      // Kaydın gerçekten oluşturulduğunu doğrula
+      final verifyDoc = await _firestore.collection('parents').doc(docId).get();
+      if (verifyDoc.exists) {
+        print('✅ Veli kaydı doğrulandı: $docId mevcut');
+        print('   Veriler: ${verifyDoc.data()}');
+      } else {
+        print('⚠️ UYARI: Veli kaydı oluşturuldu ama doğrulama sırasında bulunamadı!');
+      }
+      
+      return docId;
+    } on FirebaseException catch (e) {
+      print('❌ Firebase Exception:');
+      print('   Code: ${e.code}');
+      print('   Message: ${e.message}');
+      print('   Stack: ${e.stackTrace}');
+      return null;
+    } catch (e, stackTrace) {
+      print('❌ Genel Exception:');
+      print('   Hata: $e');
+      print('   Tip: ${e.runtimeType}');
+      print('   Stack trace: $stackTrace');
+      return null;
+    }
+  }
+
+  // Türkçe karakterleri İngilizce karşılıklarına çevir
+  String _normalizeTurkishChars(String text) {
+    return text
+        .replaceAll('ç', 'c')
+        .replaceAll('ğ', 'g')
+        .replaceAll('ı', 'i')
+        .replaceAll('ö', 'o')
+        .replaceAll('ş', 's')
+        .replaceAll('ü', 'u')
+        .replaceAll('Ç', 'c')
+        .replaceAll('Ğ', 'g')
+        .replaceAll('İ', 'i')
+        .replaceAll('Ö', 'o')
+        .replaceAll('Ş', 's')
+        .replaceAll('Ü', 'u')
+        .replaceAll(' ', ''); // Boşlukları kaldır
   }
 
   // Öğrenci güncelle

@@ -166,9 +166,9 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final Color background = Colors.white;
-    final Color panelColor = const Color(0xFFF4F6FB);
-    final Color accent = const Color(0xFF2196F3);
+    const Color background = Colors.white;
+    const Color panelColor = Color(0xFFF4F6FB);
+    const Color accent = Color(0xFF2196F3);
     final double mapHeight = MediaQuery.of(context).size.height / 3;
 
     return Scaffold(
@@ -607,8 +607,8 @@ class StudentActionCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(14),
           ),
         ).copyWith(
-          backgroundColor: MaterialStateProperty.resolveWith((states) {
-            if (states.contains(MaterialState.disabled)) {
+          backgroundColor: WidgetStateProperty.resolveWith((states) {
+            if (states.contains(WidgetState.disabled)) {
               return color.withOpacity(0.35);
             }
             return color;
@@ -773,8 +773,8 @@ class _DriverStudentListScreenState extends State<DriverStudentListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final Color background = Colors.white;
-    final Color panelColor = const Color(0xFFF4F6FB);
+    const Color background = Colors.white;
+    const Color panelColor = Color(0xFFF4F6FB);
 
     return PopScope(
       onPopInvoked: (didPop) {

@@ -65,23 +65,23 @@ class _DriverDetailScreenState extends State<DriverDetailScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: const Color(0xFF37474F),
+        backgroundColor: Colors.white,
         title: Text(
           'Şoförü Sil',
-          style: GoogleFonts.poppins(color: Colors.white),
+          style: GoogleFonts.poppins(color: const Color(0xFF000000)),
         ),
         content: Text(
           _driver!.hasService
               ? 'Bu şoför bir serviste çalışıyor. Şoförü silmek istediğinizden emin misiniz?'
               : 'Bu şoförü silmek istediğinizden emin misiniz?',
-          style: GoogleFonts.poppins(color: Colors.white70),
+          style: GoogleFonts.poppins(color: const Color(0xFF666666)),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
             child: Text(
               'İptal',
-              style: GoogleFonts.poppins(color: Colors.white70),
+              style: GoogleFonts.poppins(color: const Color(0xFF666666)),
             ),
           ),
           TextButton(
@@ -143,21 +143,21 @@ class _DriverDetailScreenState extends State<DriverDetailScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: const Color(0xFF37474F),
+        backgroundColor: Colors.white,
         title: Text(
           'Servisten Çıkar',
-          style: GoogleFonts.poppins(color: Colors.white),
+          style: GoogleFonts.poppins(color: const Color(0xFF000000)),
         ),
         content: Text(
           'Bu şoförü servisten çıkarmak istediğinizden emin misiniz?',
-          style: GoogleFonts.poppins(color: Colors.white70),
+          style: GoogleFonts.poppins(color: const Color(0xFF666666)),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: Text(
               'İptal',
-              style: GoogleFonts.poppins(color: Colors.white70),
+              style: GoogleFonts.poppins(color: const Color(0xFF666666)),
             ),
           ),
           TextButton(
@@ -188,19 +188,10 @@ class _DriverDetailScreenState extends State<DriverDetailScreen> {
   Widget build(BuildContext context) {
     if (_driver == null) {
       return Scaffold(
-        body: Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                Color(0xFF263238),
-                Color(0xFF37474F),
-              ],
-            ),
-          ),
-          child: const Center(
-            child: CircularProgressIndicator(),
+        backgroundColor: const Color(0xFFF8F9FA),
+        body: const Center(
+          child: CircularProgressIndicator(
+            color: Color(0xFF0A66C2),
           ),
         ),
       );
@@ -209,32 +200,20 @@ class _DriverDetailScreenState extends State<DriverDetailScreen> {
     final statusColor = Color(_driver!.status.colorValue);
 
     return Scaffold(
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Color(0xFF263238),
-              Color(0xFF37474F),
-            ],
-          ),
-        ),
-        child: SafeArea(
-          child: Column(
-            children: [
-              // AppBar
-              _buildAppBar(),
-              
-              // İçerik
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
+      backgroundColor: const Color(0xFFF8F9FA),
+      body: SafeArea(
+        child: Column(
+          children: [
+            // AppBar
+            _buildAppBar(),
+            
+            // İçerik
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
                       // Şoför Bilgileri Kartı
                       _buildDriverInfoCard(statusColor),
                       
@@ -248,8 +227,9 @@ class _DriverDetailScreenState extends State<DriverDetailScreen> {
                             'Atanmış Servis',
                             style: GoogleFonts.poppins(
                               fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
+                              fontWeight: FontWeight.w700,
+                              color: const Color(0xFF000000),
+                              letterSpacing: 0.3,
                             ),
                           ),
                           if (_driver!.hasService)
@@ -273,14 +253,26 @@ class _DriverDetailScreenState extends State<DriverDetailScreen> {
                         Container(
                           padding: const EdgeInsets.all(32),
                           decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.05),
+                            color: Colors.white,
                             borderRadius: BorderRadius.circular(16),
+                            border: Border.all(
+                              color: const Color(0xFFE0E0E0),
+                              width: 1,
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.05),
+                                blurRadius: 10,
+                                spreadRadius: 1,
+                                offset: const Offset(0, 3),
+                              ),
+                            ],
                           ),
                           child: Column(
                             children: [
                               const FaIcon(
                                 FontAwesomeIcons.bus,
-                                color: Colors.white54,
+                                color: Color(0xFF999999),
                                 size: 48,
                               ),
                               const SizedBox(height: 16),
@@ -288,7 +280,7 @@ class _DriverDetailScreenState extends State<DriverDetailScreen> {
                                 'Henüz servis atanmamış',
                                 style: GoogleFonts.poppins(
                                   fontSize: 16,
-                                  color: Colors.white54,
+                                  color: const Color(0xFF666666),
                                 ),
                               ),
                               const SizedBox(height: 16),
@@ -338,13 +330,23 @@ class _DriverDetailScreenState extends State<DriverDetailScreen> {
   Widget _buildAppBar() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Row(
             children: [
               IconButton(
-                icon: const Icon(Icons.arrow_back, color: Colors.white),
+                icon: const Icon(Icons.arrow_back, color: Color(0xFF000000)),
                 onPressed: () => Navigator.pop(context, true),
               ),
               const SizedBox(width: 8),
@@ -352,8 +354,9 @@ class _DriverDetailScreenState extends State<DriverDetailScreen> {
                 'Şoför Detayı',
                 style: GoogleFonts.poppins(
                   fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
+                  fontWeight: FontWeight.w700,
+                  color: const Color(0xFF000000),
+                  letterSpacing: 0.3,
                 ),
               ),
             ],
@@ -361,7 +364,7 @@ class _DriverDetailScreenState extends State<DriverDetailScreen> {
           Row(
             children: [
               IconButton(
-                icon: const Icon(Icons.edit, color: Colors.white),
+                icon: const Icon(Icons.edit, color: Color(0xFF0A66C2)),
                 onPressed: _editDriver,
               ),
               IconButton(
@@ -379,12 +382,20 @@ class _DriverDetailScreenState extends State<DriverDetailScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(20),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: Colors.white.withOpacity(0.1),
+          color: const Color(0xFFE0E0E0),
           width: 1,
         ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            spreadRadius: 1,
+            offset: const Offset(0, 3),
+          ),
+        ],
       ),
       child: Column(
         children: [
@@ -393,7 +404,7 @@ class _DriverDetailScreenState extends State<DriverDetailScreen> {
             width: 80,
             height: 80,
             decoration: BoxDecoration(
-              color: const Color(0xFFFF9800).withOpacity(0.2),
+              color: const Color(0xFF0A66C2).withOpacity(0.1),
               shape: BoxShape.circle,
             ),
             child: Center(
@@ -401,8 +412,8 @@ class _DriverDetailScreenState extends State<DriverDetailScreen> {
                 _driver!.firstName[0].toUpperCase(),
                 style: GoogleFonts.poppins(
                   fontSize: 36,
-                  fontWeight: FontWeight.bold,
-                  color: const Color(0xFFFF9800),
+                  fontWeight: FontWeight.w700,
+                  color: const Color(0xFF0A66C2),
                 ),
               ),
             ),
@@ -414,8 +425,8 @@ class _DriverDetailScreenState extends State<DriverDetailScreen> {
             _driver!.fullName,
             style: GoogleFonts.poppins(
               fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
+              fontWeight: FontWeight.w700,
+              color: const Color(0xFF000000),
             ),
           ),
           const SizedBox(height: 8),
@@ -439,7 +450,7 @@ class _DriverDetailScreenState extends State<DriverDetailScreen> {
           ),
           
           const SizedBox(height: 24),
-          const Divider(color: Colors.white24),
+          const Divider(color: Color(0xFFE0E0E0)),
           const SizedBox(height: 16),
           
           // İletişim Bilgileri
@@ -471,7 +482,7 @@ class _DriverDetailScreenState extends State<DriverDetailScreen> {
           // Notlar
           if (_driver!.notes != null && _driver!.notes!.isNotEmpty) ...[
             const SizedBox(height: 16),
-            const Divider(color: Colors.white24),
+            const Divider(color: Color(0xFFE0E0E0)),
             const SizedBox(height: 12),
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -487,7 +498,7 @@ class _DriverDetailScreenState extends State<DriverDetailScreen> {
                     _driver!.notes!,
                     style: GoogleFonts.poppins(
                       fontSize: 14,
-                      color: Colors.white.withOpacity(0.8),
+                      color: const Color(0xFF000000),
                     ),
                   ),
                 ),
@@ -517,7 +528,7 @@ class _DriverDetailScreenState extends State<DriverDetailScreen> {
                 label,
                 style: GoogleFonts.poppins(
                   fontSize: 12,
-                  color: Colors.white.withOpacity(0.6),
+                  color: const Color(0xFF666666),
                 ),
               ),
               const SizedBox(height: 2),
@@ -526,7 +537,7 @@ class _DriverDetailScreenState extends State<DriverDetailScreen> {
                 style: GoogleFonts.poppins(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
-                  color: Colors.white,
+                  color: const Color(0xFF000000),
                 ),
               ),
             ],
@@ -543,19 +554,27 @@ class _DriverDetailScreenState extends State<DriverDetailScreen> {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(16),
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: const Color(0xFF4CAF50),
+            color: const Color(0xFFE0E0E0),
             width: 1,
           ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 10,
+              spreadRadius: 1,
+              offset: const Offset(0, 3),
+            ),
+          ],
         ),
         child: Row(
           children: [
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: const Color(0xFF4CAF50).withOpacity(0.2),
+                color: const Color(0xFF4CAF50).withOpacity(0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: const FaIcon(
@@ -573,8 +592,8 @@ class _DriverDetailScreenState extends State<DriverDetailScreen> {
                     service.plateNumber,
                     style: GoogleFonts.poppins(
                       fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                      fontWeight: FontWeight.w700,
+                      color: const Color(0xFF000000),
                     ),
                   ),
                   const SizedBox(height: 4),
@@ -582,7 +601,7 @@ class _DriverDetailScreenState extends State<DriverDetailScreen> {
                     service.routeName,
                     style: GoogleFonts.poppins(
                       fontSize: 14,
-                      color: Colors.white.withOpacity(0.7),
+                      color: const Color(0xFF666666),
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -598,7 +617,7 @@ class _DriverDetailScreenState extends State<DriverDetailScreen> {
                         '${service.currentStudentCount}/${service.capacity} öğrenci',
                         style: GoogleFonts.poppins(
                           fontSize: 12,
-                          color: Colors.white.withOpacity(0.7),
+                          color: const Color(0xFF666666),
                         ),
                       ),
                     ],
@@ -608,7 +627,7 @@ class _DriverDetailScreenState extends State<DriverDetailScreen> {
             ),
             const Icon(
               Icons.chevron_right,
-              color: Colors.white70,
+              color: Color(0xFF999999),
             ),
           ],
         ),

@@ -3,7 +3,7 @@ import 'service_service.dart';
 
 class DriverService {
   // Şimdilik local liste, ileride Firebase'den çekilecek
-  static List<Driver> _drivers = _generateSampleDrivers();
+  static final List<Driver> _drivers = _generateSampleDrivers();
 
   static List<Driver> _generateSampleDrivers() {
     final List<Driver> drivers = [];
